@@ -1,20 +1,22 @@
 pipeline {
-agent any
-stages {
-stage('Clone Repository') {
-steps {
-git url: 'https://github.com/dussabhavana/week7.git',branch: 'main' }
-}
-stage('Build Docker Image') {
-steps {
-bat 'docker build -t registration:v1 .'
-}
-}
-stage('Run Docker Container') {
-steps {
-bat 'docker rm -f registration-container || exit 0'
-bat 'docker run -d -p 5000:5000 --name registration-container registration:v1'
-}
-}
-}
+    agent any
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t registration:v1 .'
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                bat 'docker tag registration:v1 bhavana1274/registration:v1'
+                bat 'docker push bhavana1274/registration:v1'
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                bat 'kubectl apply -f C:/4YEAR/DevOps/Week-2/deployment.yaml'
+                bat 'kubectl apply -f C:/4YEAR/DevOps/Week-2/service.yaml'
+            }
+        }
+    }
 }
